@@ -11,7 +11,7 @@ build/
 .env
 .env.local
 .env.*.local
-
+.venv*
 # IDE and editor files
 .idea/
 .vscode/

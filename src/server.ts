@@ -49,17 +49,30 @@ const handleHealth = (_req: Request, res: Response) => {
   });
 };
 
-// // Register routes
-// router.get('/sse', handleSSE);
-// router.post('/messages', handleMessage);
-// router.get('/health', handleHealth);
+const handleTools = async (_req: Request, res: Response) => {
+  console.debug('Tools list request received');
+  if (!mcpServer) {
+    console.warn('MCP server not initialized - rejecting tools request');
+    res.status(400).json({ error: 'MCP server not initialized' });
+    return;
+  }
+  try {
+    const tools = mcpServer.getTools();
+    res.json({
+      status: 'ok',
+      tools
+    });
+  } catch (error) {
+    console.error('Error listing tools:', error);
+    res.status(500).json({ error: 'Failed to list tools' });
+  }
+};
 
-// Mount router
-// app.use('/', router);
-
+// Register routes
 app.get('/sse', handleSSE);
 app.post('/messages', handleMessage);
 app.get('/health', handleHealth);
+app.get('/tools', handleTools);
 
 // Initialize server
 async function initializeServer() {
