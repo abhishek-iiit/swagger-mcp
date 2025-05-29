@@ -1,6 +1,6 @@
 {
   "swagger": {
-    "url": "https://petstore.swagger.io/v2/swagger.json",
+    "url": "file:///Users/abhishekjaiswal/Desktop/SELF/officeProject/swagger-mcp/examples/swagger-pet-store.json",
     "apiBaseUrl": "https://petstore.swagger.io/v2",
     "defaultAuth": {
       "type": "apiKey",
