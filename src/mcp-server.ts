@@ -380,7 +380,7 @@ export class SwaggerMcpServer {
     console.debug('MCP handleMessage', req.body);
     if (transport) {
       try {
-        transport.handlePostMessage(req, res);
+        transport.handlePostMessage(req, res, JSON.stringify(req.body));
       } catch (error) {
         console.error('Error handling message:', error);
       }
