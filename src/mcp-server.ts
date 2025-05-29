@@ -15,6 +15,7 @@ export class SwaggerMcpServer {
   private apiBaseUrl: string;
   private defaultAuth: AuthConfig | undefined;
   private securitySchemes: Record<string, SecurityScheme> = {};
+  private registeredTools: { operationId: string; description: string; parameters: string[] }[] = [];
 
   constructor(apiBaseUrl: string, defaultAuth?: AuthConfig) {
     console.debug('constructor', apiBaseUrl, defaultAuth);
@@ -29,6 +30,11 @@ export class SwaggerMcpServer {
         test: z.string(),
       }),
     }, async ({ input }) => {
+      this.registeredTools.push({
+        operationId: 'test',
+        description: 'test',
+        parameters: ['test']
+      });
       return { content: [{ type: "text", text: "Hello, world!" }] };
     });
   }
@@ -237,6 +243,7 @@ export class SwaggerMcpServer {
       return;
     }
 
+    this.registeredTools = []; // Clear any existing tools
     const totalPaths = Object.keys(this.swaggerSpec.paths).length;
     console.debug(`Found ${totalPaths} paths to process`);
 
@@ -269,6 +276,12 @@ export class SwaggerMcpServer {
         });
 
         // Register the tool
+        this.registeredTools.push({
+          operationId,
+          description: `${op.summary || `${method.toUpperCase()} ${path}`}\n\n${op.description || ''}`,
+          parameters: Object.keys(inputShape)
+        });
+
         this.mcpServer.tool(
           operationId,
           `${op.summary || `${method.toUpperCase()} ${path}`}\n\n${op.description || ''}`,
@@ -364,6 +377,11 @@ export class SwaggerMcpServer {
         );
       }
     }
+    console.debug('All registered tools:', this.registeredTools);
+  }
+
+  getTools() {
+    return this.registeredTools;
   }
 
   getServer() {
@@ -380,7 +398,7 @@ export class SwaggerMcpServer {
     console.debug('MCP handleMessage', req.body);
     if (transport) {
       try {
-        transport.handlePostMessage(req, res);
+        transport.handlePostMessage(req, res, JSON.stringify(req.body));
       } catch (error) {
         console.error('Error handling message:', error);
       }
